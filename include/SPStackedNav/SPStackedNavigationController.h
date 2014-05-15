@@ -15,6 +15,8 @@
 
 #import <UIKit/UIKit.h>
 
+#define kEXRemoteZIndex         INT_MAX
+
 typedef enum 
 {
     SPStackedNavigationPagePositionLeft = 0,
@@ -34,15 +36,25 @@ typedef enum
 - (id)initWithRootViewController:(UIViewController *)rootViewController;
 
 // activate specifies whether the pushed view controller should become the active view controller or not
+- (void)pushViewController:(UIViewController *)viewController; // onTopOf = activeViewController, animated = YES, activate = YES
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated; // activate = YES
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated activate:(BOOL)activate;
 // replace everything on the stack after 'parent' with 'viewController'
 - (void)pushViewController:(UIViewController *)viewController onTopOf:(UIViewController*)parent animated:(BOOL)animated; // activate = YES
 - (void)pushViewController:(UIViewController *)viewController onTopOf:(UIViewController*)parent animated:(BOOL)animated activate:(BOOL)activate;
 
+- (UIViewController *)pop; // Animated = YES
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated;
 - (NSArray *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated;
 - (NSArray *)popToRootViewControllerAnimated:(BOOL)animated;
+//- (NSArray *)popToRootViewControllerAnimated:(BOOL)animated completion:(void (^)(BOOL finished))completion;
+
+- (void)addTopViewController:(UIViewController*)viewController animated:(BOOL)animated;
+
+- (void)removeViewController:(UIViewController*)viewController;
+
+- (void)enablePanning;
+- (void)disablePanning;
 
 /// Top of the stack
 @property(nonatomic,readonly) UIViewController *topViewController;

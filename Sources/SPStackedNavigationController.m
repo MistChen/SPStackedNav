@@ -80,6 +80,11 @@ static const float kUnknownFrameSize = 10;
 }
 
 // Only these two methods actually manipulate _viewControllers
+- (void)pushViewController:(UIViewController *)viewController
+{
+    [self pushViewController:viewController onTopOf:self.activeViewController animated:YES];
+}
+
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     [self pushViewController:viewController animated:animated activate:YES];
@@ -123,6 +128,12 @@ static const float kUnknownFrameSize = 10;
     [self popToViewController:parent animated:animated];
     [self pushViewController:viewController animated:animated activate:activate];
 }
+
+- (UIViewController *)pop
+{
+    return [self popViewControllerAnimated:YES];
+}
+
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated
 {
     UIViewController *viewController = [[self childViewControllers] lastObject];
@@ -147,6 +158,39 @@ static const float kUnknownFrameSize = 10;
                          animated:animated];
     
     return viewController;
+}
+
+- (void)addTopViewController:(UIViewController*)viewController animated:(BOOL)animated
+{
+    [self pushViewController:viewController animated:animated activate:NO];
+}
+
+- (void)removeViewController:(UIViewController*)viewController
+{
+    if (!viewController)
+        return;
+    
+    [self willChangeValueForKey:@"viewControllers"];
+    [viewController willMoveToParentViewController:nil];
+    
+    if ([self isViewLoaded])
+    {
+        SPStackedPageContainer *pageC = [_scroll containerForViewController:viewController];
+        pageC.markedForSuperviewRemoval = YES;
+    }
+    
+    [viewController removeFromParentViewController];
+    [self didChangeValueForKey:@"viewControllers"];
+}
+
+- (void)enablePanning
+{
+    self.panGestureRecognizer.enabled = YES;
+}
+
+- (void)disablePanning
+{
+    self.panGestureRecognizer.enabled = NO;
 }
 
 #pragma mark Convenience methods to the above two methods.
@@ -251,6 +295,20 @@ static const float kUnknownFrameSize = 10;
     [self setActiveViewController:(self.viewControllers)[0] position:SPStackedNavigationPagePositionLeft animated:animated];
     return vcs;
 }
+
+//- (NSArray *)popToRootViewControllerAnimated:(BOOL)animated completion:(void (^)(BOOL finished))completion
+//{
+//    int targetCount = 1;
+//    if (self.viewControllers.count > 0 && [(self.viewControllers)[0] stackedNavigationPageSize] == kStackedPageHalfSize)
+//        targetCount = 2;
+//    
+//    NSMutableArray *vcs = [NSMutableArray array];
+//    while(self.viewControllers.count > targetCount)
+//        [vcs addObject:[self popViewControllerAnimated:animated]];
+//    [self setActiveViewController:(self.viewControllers)[0] position:SPStackedNavigationPagePositionLeft animated:animated];
+//    return vcs;
+//}
+
 - (UIViewController*)topViewController
 {
     return self.viewControllers.lastObject;
