@@ -81,7 +81,7 @@ typedef enum
 
 
 
-static const CGFloat kSPStackedNavigationHalfPageWidth = 472;
+static const CGFloat kSPStackedNavigationHalfPageWidth = 479;
 
 enum {
     /// Fills the width of the screen in landscape (excluding sidebar)

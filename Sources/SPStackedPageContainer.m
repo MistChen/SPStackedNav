@@ -98,7 +98,7 @@ static BOOL IsIPad11() {
     highlight.backgroundColor = [UIColor colorWithWhite:1 alpha:.46];
     highlight.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     highlight.userInteractionEnabled = NO;
-    [_vcContainer addSubview:highlight];
+    //[_vcContainer addSubview:highlight];
     
     UIPanGestureRecognizer *panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleGestureRecognizer:)];
     panGestureRecognizer.delegate = self;
