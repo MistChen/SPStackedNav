@@ -38,6 +38,7 @@ static const CGFloat kScrollDoneMarginOvershoot = 3;
 static const CGFloat kScrollDoneMarginNormal = 1;
 static const CGFloat kPanCaptureAngle = ((55.f) / 180.f * M_PI);
 static const CGFloat kPanScrollViewDeceleratingCaptureAngle = ((40.f) / 180.f * M_PI);
+static const CGFloat kOpacityOverlayGrade = 1.0;
 
 @interface SPStackedNavigationScrollView () <UIGestureRecognizerDelegate>
 @property(nonatomic,retain) UIPanGestureRecognizer *scrollRec;
@@ -347,7 +348,7 @@ static const CGFloat kPanScrollViewDeceleratingCaptureAngle = ((40.f) / 180.f * 
             pen.origin.x += pen.size.width;
         
         if (actualPen.origin.x <= 0 && pageC != [self.subviews lastObject]) {
-            pageC.overlayOpacity = 0.3/actualPen.size.width*abs(actualPen.origin.x);
+            pageC.overlayOpacity = kOpacityOverlayGrade/actualPen.size.width*abs(actualPen.origin.x);
         } else {
             pageC.overlayOpacity = 0.0;
         }
