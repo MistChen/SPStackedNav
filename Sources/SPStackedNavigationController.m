@@ -36,7 +36,7 @@
     if (!(self = [self init])) return nil;
     
     [self pushViewController:rootViewController animated:NO];
-    [self setActiveViewController:rootViewController position:SPStackedNavigationPagePositionLeft animated:NO];
+    [self setActiveViewController:rootViewController position:SPStackedNavigationPagePositionLeft animated:NO completion:nil];
     
     return self;
 }
@@ -63,7 +63,7 @@ static const float kUnknownFrameSize = 10;
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
-    [self setActiveViewController:self.activeViewController position:self.activeViewControllerPagePosition animated:NO];
+    [self setActiveViewController:self.activeViewController position:self.activeViewControllerPagePosition animated:NO completion:nil];
 }
 
 #pragma mark view controllers manipulation entry points
@@ -100,7 +100,7 @@ static const float kUnknownFrameSize = 10;
     
     if ([viewController parentViewController] == self && activate)
     {
-        [self setActiveViewController:viewController position:activePosition animated:animated];
+        [self setActiveViewController:viewController position:activePosition animated:animated completion:nil];
         return;
     }
     NSAssert([viewController parentViewController] == nil, @"cannot push view controller with an existing parent");
@@ -112,7 +112,7 @@ static const float kUnknownFrameSize = 10;
         [self pushPageContainerWithViewController:viewController];
     
     if (activate)
-        [self setActiveViewController:viewController position:activePosition animated:animated];
+        [self setActiveViewController:viewController position:activePosition animated:animated completion:nil];
     
     [viewController didMoveToParentViewController:self];
     [self didChangeValueForKey:@"viewControllers"];
@@ -155,7 +155,7 @@ static const float kUnknownFrameSize = 10;
     
     [self setActiveViewController:[self.childViewControllers lastObject]
                          position:SPStackedNavigationPagePositionRight
-                         animated:animated];
+                         animated:animated completion:nil];
     
     return viewController;
 }
@@ -221,7 +221,7 @@ static const float kUnknownFrameSize = 10;
 {
     [self setViewControllers:viewControllers animated:NO];
 }
-- (void)setActiveViewController:(UIViewController*)viewController animated:(BOOL)animated
+- (void)setActiveViewController:(UIViewController*)viewController animated:(BOOL)animated completion:(void (^)(BOOL finished))completion
 {
     if (self.activeViewController == viewController ||
         [self.viewControllers indexOfObject:viewController] == NSNotFound)
@@ -232,9 +232,9 @@ static const float kUnknownFrameSize = 10;
                          position:(newIndex > currentIndex ?
                                    SPStackedNavigationPagePositionRight :
                                    SPStackedNavigationPagePositionLeft)
-                         animated:animated];
+                         animated:animated completion:completion];
 }
-- (void)setActiveViewController:(UIViewController *)viewController position:(SPStackedNavigationPagePosition)position animated:(BOOL)animated
+- (void)setActiveViewController:(UIViewController *)viewController position:(SPStackedNavigationPagePosition)position animated:(BOOL)animated completion:(void(^)(BOOL finished))completion
 {
     NSArray *viewControllers = [self viewControllers];
     NSUInteger index = [viewControllers indexOfObject:viewController];
@@ -244,7 +244,7 @@ static const float kUnknownFrameSize = 10;
     [_scroll setContentOffset:CGPointMake([_scroll scrollOffsetForAligningPage:(_scroll.subviews)[index]
                                                           position:self.activeViewControllerPagePosition],
                                           0)
-                     animated:animated];
+                     animated:animated completion:completion];
 }
 - (void)setActiveViewController:(UIViewController *)activeViewController position:(SPStackedNavigationPagePosition)position
 {
@@ -292,7 +292,7 @@ static const float kUnknownFrameSize = 10;
     NSMutableArray *vcs = [NSMutableArray array];
     while(self.viewControllers.count > targetCount)
         [vcs addObject:[self popViewControllerAnimated:animated]];
-    [self setActiveViewController:(self.viewControllers)[0] position:SPStackedNavigationPagePositionLeft animated:animated];
+    [self setActiveViewController:(self.viewControllers)[0] position:SPStackedNavigationPagePositionLeft animated:animated completion:nil];
     return vcs;
 }
 
@@ -371,7 +371,7 @@ static const float kUnknownFrameSize = 10;
 
 - (void)activateInStackedNavigationAnimated:(BOOL)animated
 {
-    [self.stackedNavigationController setActiveViewController:self animated:animated];
+    [self.stackedNavigationController setActiveViewController:self animated:animated completion:nil];
 }
 
 - (BOOL)isActiveInStackedNavigation

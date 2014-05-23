@@ -23,7 +23,7 @@
 @property(nonatomic) CGPoint contentOffset;
 @property(nonatomic,assign) id<SPStackedNavigationScrollViewDelegate> delegate;
 @property(nonatomic,retain,readonly) UIPanGestureRecognizer *panGestureRecognizer;
-- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated;
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated completion:(void(^)(BOOL finished))completion;
 - (void)snapToClosest;
 
 - (NSRange)scrollRange;

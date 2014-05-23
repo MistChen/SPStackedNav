@@ -172,7 +172,7 @@ static const CGFloat kOpacityOverlayGrade = 1.0;
         __weak typeof(self) weakSelf = self;
         self.onScrollDone = ^{
             __strong __typeof(self) strongSelf = weakSelf;
-            [strongSelf setContentOffset:CGPointMake(targetPoint, 0) animated:animated];
+            [strongSelf setContentOffset:CGPointMake(targetPoint, 0) animated:animated completion:nil];
             [strongSelf->_delegate stackedNavigationScrollView:strongSelf
                             didStopAtPageContainer:target
                                       pagePosition:(target == left ? SPStackedNavigationPagePositionLeft :
@@ -180,9 +180,12 @@ static const CGFloat kOpacityOverlayGrade = 1.0;
         };
     }
     
-    targetPoint += MAX(10, fabs(vel/150))*fsign(vel);
     
-    [self setContentOffset:CGPointMake(targetPoint, 0) animated:animated];
+    targetPoint += MAX(10, fabs(vel/150))*fsign(vel);
+    if ([target.vc isKindOfClass:NSClassFromString(@"EXHomeViewController")] && targetPoint < 0)
+        targetPoint = 0.0;
+    
+    [self setContentOffset:CGPointMake(targetPoint, 0) animated:animated completion:nil];
     _scrollDoneMargin = kScrollDoneMarginOvershoot;
     
     if (!animated)
@@ -195,6 +198,9 @@ static const CGFloat kOpacityOverlayGrade = 1.0;
 
 - (void)scrollGesture:(UIPanGestureRecognizer*)grec
 {
+    if ([self shouldLockHomeSceenOfClass:@"EXHomeViewController"] && [grec translationInView:self].x > 0)
+        return;
+    
     if (grec.state == UIGestureRecognizerStateBegan) {
         _scrollAtStartOfPan = _actualOffset;
         [self startRunLoop];
@@ -203,7 +209,7 @@ static const CGFloat kOpacityOverlayGrade = 1.0;
         self.contentOffset = CGPointMake(_scrollAtStartOfPan.x-[grec translationInView:self].x, 0);
     } else if (grec.state == UIGestureRecognizerStateFailed || grec.state == UIGestureRecognizerStateCancelled) {
         [self stopRunLoop];
-        [self setContentOffset:_scrollAtStartOfPan animated:YES];
+        [self setContentOffset:_scrollAtStartOfPan animated:YES completion:nil];
     } else if (grec.state == UIGestureRecognizerStateRecognized) {
         // minus: swipe left means navigate to VC to the right
         [self stopRunLoop];
@@ -211,6 +217,15 @@ static const CGFloat kOpacityOverlayGrade = 1.0;
     }
 }
 
+- (BOOL)shouldLockHomeSceenOfClass:(NSString *)class {
+    BOOL lock = NO;
+    for (SPStackedPageContainer *pc in self.subviews)
+    {
+        if ([pc.vc isKindOfClass:NSClassFromString(class)] && pc.vc.isActiveInStackedNavigation)
+            lock = YES;
+    }
+    return lock;
+}
 - (void)startRunLoop
 {
     if (!_runningRunLoop)
@@ -255,7 +270,7 @@ static const CGFloat kOpacityOverlayGrade = 1.0;
 @synthesize contentOffset = _targetOffset;
 - (void)setContentOffset:(CGPoint)contentOffset
 {
-    [self setContentOffset:contentOffset animated:NO];
+    [self setContentOffset:contentOffset animated:NO completion:nil];
 }
 
 - (void)scrollAnimationFrame:(CADisplayLink*)cdl
@@ -268,8 +283,13 @@ static const CGFloat kOpacityOverlayGrade = 1.0;
             self.onScrollDone();
             self.onScrollDone = nil;
         } else
+            //TODO scroll delegate here
             // we're done animating, hide everything that needs to be hidden
             [self updateContainerVisibilityByShowing:YES byHiding:YES];
+//            [_delegate stackedNavigationScrollView:self
+//                        didStopAtPageContainer:nil
+//                                  pagePosition:(_targetOffset.x > 0 ? SPStackedNavigationPagePositionLeft :
+//                                                SPStackedNavigationPagePositionRight)];
 
         // TODO<nevyn>: Unblock processing
     }
@@ -283,7 +303,8 @@ static const CGFloat kOpacityOverlayGrade = 1.0;
     _actualOffset.x += movement;
     [self setNeedsLayout];
 }
-- (void)animateToTargetScrollOffset
+
+- (void)animateToTargetScrollOffsetCompletion:(void(^)(BOOL finished))completion
 {
     if (_scrollAnimationTimer) return;
     _scrollDoneMargin = kScrollDoneMarginNormal;
@@ -293,11 +314,13 @@ static const CGFloat kOpacityOverlayGrade = 1.0;
 }
 
 
-- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated completion:(void(^)(BOOL finished))completion
 {
     _targetOffset = contentOffset;
     if (animated)
-        [self animateToTargetScrollOffset];
+    {
+        [self animateToTargetScrollOffsetCompletion:completion];
+    }
     else {
         _actualOffset = _targetOffset;
         if (_onScrollDone)

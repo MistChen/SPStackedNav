@@ -43,6 +43,7 @@ typedef enum
 - (void)pushViewController:(UIViewController *)viewController onTopOf:(UIViewController*)parent animated:(BOOL)animated; // activate = YES
 - (void)pushViewController:(UIViewController *)viewController onTopOf:(UIViewController*)parent animated:(BOOL)animated activate:(BOOL)activate;
 
+
 - (UIViewController *)pop; // Animated = YES
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated;
 - (NSArray *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated;
@@ -65,8 +66,9 @@ typedef enum
 /// Aligns the active view controller to the specified edge of the screen (left or right).
 /// Preserved between orientation changes.
 @property(nonatomic,assign,readonly) SPStackedNavigationPagePosition activeViewControllerPagePosition;
-- (void)setActiveViewController:(UIViewController*)viewController animated:(BOOL)animated; // automatically calculates position
+- (void)setActiveViewController:(UIViewController*)viewController animated:(BOOL)animated completion:(void(^)(BOOL finished))completion; // automatically calculates position
 - (void)setActiveViewController:(UIViewController *)viewController position:(SPStackedNavigationPagePosition)position animated:(BOOL)animated;
+- (void)setActiveViewController:(UIViewController *)viewController position:(SPStackedNavigationPagePosition)position animated:(BOOL)animated completion:(void(^)(BOOL finished))completion;
 
 /// Modal if it exists, otherwise active
 - (NSArray *)visibleViewControllers;
