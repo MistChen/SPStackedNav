@@ -165,6 +165,36 @@ static const float kUnknownFrameSize = 10;
     [self pushViewController:viewController animated:animated activate:NO];
 }
 
+//-(void)animateForwardCardNavigationTip
+//{
+//    if ([self topViewController])
+//    {
+//        NSArray *cardAndPosition = [NSArray arrayWithObjects:[self topViewController], [NSNumber numberWithFloat:[self topViewController].view.left], nil];
+//        [self animateForwardNavigationTipWithCardAndPosition:cardAndPosition checkHistory:NO];
+//    }
+//}
+//
+//-(void)animateForwardNavigationTipWithCardAndPosition:(NSArray*)cardAndPosition checkHistory:(BOOL)checkHistory
+//{
+//    __weak EXViewController *card = [cardAndPosition objectAtIndex:0];
+//    float left = [[cardAndPosition objectAtIndex:1] floatValue];
+//    BOOL hasMoved = card.view.left != left;
+//
+//    if (!hasMoved && (!checkHistory || [self shouldAnimateForwardNavigationTipWithCard:card]))
+//    {
+//        [UIView animateWithDuration:0.2f delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+//            card.view.left = left - kEXNavigaionTipAnimationOffset;
+//        } completion:^(BOOL finished) {
+//            if (finished)
+//            {
+//                [UIView animateWithDuration:0.2f delay:0.3f options:UIViewAnimationOptionCurveEaseIn animations:^{
+//                    card.view.left = left;
+//                } completion:^(BOOL finished) {
+//                }];
+//            }
+//        }];
+//    }
+//}
 - (void)removeViewController:(UIViewController*)viewController
 {
     if (!viewController)
@@ -308,6 +338,25 @@ static const float kUnknownFrameSize = 10;
 //    [self setActiveViewController:(self.viewControllers)[0] position:SPStackedNavigationPagePositionLeft animated:animated];
 //    return vcs;
 //}
+
+-(void)setCardVisibilities
+{
+    NSArray *visibleCards = [self visibleViewControllers];
+
+    for (int i = 0; i < [[self viewControllers] count]; i++)
+    {
+        UIViewController *card = [self.viewControllers objectAtIndex:i];
+
+        if ([visibleCards containsObject:card])
+        {
+            [self.view addSubview:card.view];
+        }
+        else
+        {
+            [card.view removeFromSuperview];
+        }
+    }
+}
 
 - (UIViewController*)topViewController
 {

@@ -43,6 +43,8 @@ typedef enum
 - (void)pushViewController:(UIViewController *)viewController onTopOf:(UIViewController*)parent animated:(BOOL)animated; // activate = YES
 - (void)pushViewController:(UIViewController *)viewController onTopOf:(UIViewController*)parent animated:(BOOL)animated activate:(BOOL)activate;
 
+- (void)setCardVisibilities;
+//- (void)animateForwardCardNavigationTip;
 
 - (UIViewController *)pop; // Animated = YES
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated;
